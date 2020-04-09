@@ -1,0 +1,12 @@
+---
+title: 'Homework #5'
+author: "McKenna Goffinet, mgoffinet"
+date: "4/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+dat <- readr::read_csv("2019_Iowa_Liquor_Sales.csv")
+```
+
