@@ -22,6 +22,7 @@ dat <- dat %>% separate(Aft, into= c('Vals','na'), sep='[)]')
 dat <- dat %>% separate(Vals, into=c('Latitude','Longitude'), sep=' ')
 dat <- dat[-c(8,11)] #removes helper 'Before' and 'na' columns
 ```
+
 *b)*
 ```{r}
 #str(dat)
@@ -29,9 +30,13 @@ dat$`Vendor Number` <- as.numeric(dat$`Vendor Number`)
 dat$Category <- as.factor(dat$Category)
 dat$`Category Name` <- as.factor(dat$`Category Name`)
 ```
+
 *c)*
 ```{r}
 dat <- dat %>% separate(Date, into = c("Month", "Day", "Year"), sep="/", remove=TRUE)
+dat$Day <- as.numeric(dat$Day)
+dat$Month <- as.numeric(dat$Month)
+dat$Year <- as.numeric(dat$Year)
 ```
 
 **3: First Overview**
@@ -42,13 +47,30 @@ dat %>% ggplot(aes(x=Latitude, y=Longitude)) + geom_point() + labs(title='Store 
 ```
 
 *b)*
-```{r, fig.width=15}
-# note: tey to reorder category name by volume in graph?
-dat %>% group_by(`Category Name`)  %>% summarize(Volume = sum(`Volume Sold (Liters)`)) %>% ggplot(aes(x=`Category Name`, y=Volume)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=-90)) + labs(title="Liquor Category Breakdown by Volume Sold in Liters", y = 'Volume Sold (Liters)')
+```{r, fig.width=10}
+# note: try to reorder category name by volume in graph?
+dat %>% group_by(`Category Name`)  %>% summarize(Volume = sum(`Volume Sold (Gallons)`)) %>% ggplot(aes(x=`Category Name`, y=Volume)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=-90)) + labs(title="Liquor Category Breakdown by Volume Sold in Gallons", y = 'Volume Sold (Gallons)')
 ```
 
-**4: Find the daily sales liquor sales in Ames in 2019. Summarize the number of sales, volume of liquor sold, and amount of money spent.**
+American Vodkas are the most sold liquor in Ames by volume by far. This is followed distantly by Canadian Whiskies and then Straight Bourbon Whiskies, Spiced Rum, and American Flavored Vodka.
+
+**4: Find the daily liquor sales in Ames in 2019. Summarize the number of sales, volume of liquor sold, and amount of money spent.**
+```{r}
+daily_sales <- dat %>% group_by(Month, Day, Year) %>% summarize(num_sales = n(), gallons_sold = sum(`Volume Sold (Gallons)`),money_spent = sum(`Sale (Dollars)`))
+daily_sales
+```
 
 **5: Plot volume sold by day (use a scatterplot of volume by day and facet by month). Discover any trend with the help of geom_smooth. Describe any patterns.**
+```{r}
+daily_sales %>% ggplot(aes(x=Day, y=gallons_sold)) + geom_point() + geom_smooth() + facet_wrap(~Month) + theme(axis.text.x = element_text(angle=-90)) + labs(title="Gallons of Liquor Sold by Day by Month")
+```
+
+Most of the months have a fairly flat line, indicating liquor sales remain steady throughout the month. February, however fluctuates relatively severely in the middle of the month. This is right around Valentine's Day, a time where relationships are tested or may progress. There are small spikes around most major holidays, which is to be expected as people typically gather during these times and many gatherings involve liquor.
 
 **6: Find the dates for ISU football home games in Fall 2019. Can you see a pattern?**
+
+The dates for Iowa State Football home games in Fall 2019 are 8/31/19, 9/14/19, 9/21/19, 10/5/19, 10/26/19, 11/16/19, and 11/23/19.
+
+The data set does not contain data for any of these dates, but there is an increase in daily liquor sales in Ames in the days leading up to each of these dates. People in Ames were likely buying liquor in preparation for tailgating and/or watch parties if they weren't going to the game themselves.
+
+Note: ISU played in the Camping World Bowl on 12/28/19. There is a spike in daily liquor sales around that time which may be attributed to watch parties for that game. This spike may also just be a result of the holidays.
