@@ -1,12 +1,54 @@
 ---
 title: 'Homework #5'
 author: "McKenna Goffinet, mgoffinet"
-date: "4/9/2020"
+date: "4/10/2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 dat <- readr::read_csv("2019_Iowa_Liquor_Sales.csv")
 ```
 
+**2: Data Cleaning**
+
+*a)*
+```{r}
+dat <- dat %>% separate(`Store Location`, into= c('Before','Aft'), sep="[(]") 
+dat <- dat %>% separate(Aft, into= c('Vals','na'), sep='[)]') 
+dat <- dat %>% separate(Vals, into=c('Latitude','Longitude'), sep=' ')
+dat <- dat[-c(8,11)] #removes helper 'Before' and 'na' columns
+```
+*b)*
+```{r}
+#str(dat)
+dat$`Vendor Number` <- as.numeric(dat$`Vendor Number`)
+dat$Category <- as.factor(dat$Category)
+dat$`Category Name` <- as.factor(dat$`Category Name`)
+```
+*c)*
+```{r}
+dat <- dat %>% separate(Date, into = c("Month", "Day", "Year"), sep="/", remove=TRUE)
+```
+
+**3: First Overview**
+
+*a)*
+```{r}
+dat %>% ggplot(aes(x=Latitude, y=Longitude)) + geom_point() + labs(title='Store Location by Latitude and Longitude') + theme(axis.text.x = element_text(angle=-45))
+```
+
+*b)*
+```{r, fig.width=15}
+# note: tey to reorder category name by volume in graph?
+dat %>% group_by(`Category Name`)  %>% summarize(Volume = sum(`Volume Sold (Liters)`)) %>% ggplot(aes(x=`Category Name`, y=Volume)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=-90)) + labs(title="Liquor Category Breakdown by Volume Sold in Liters", y = 'Volume Sold (Liters)')
+```
+
+**4: Find the daily sales liquor sales in Ames in 2019. Summarize the number of sales, volume of liquor sold, and amount of money spent.**
+
+**5: Plot volume sold by day (use a scatterplot of volume by day and facet by month). Discover any trend with the help of geom_smooth. Describe any patterns.**
+
+**6: Find the dates for ISU football home games in Fall 2019. Can you see a pattern?**
