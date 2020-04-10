@@ -48,7 +48,6 @@ dat %>% ggplot(aes(x=Latitude, y=Longitude)) + geom_point() + labs(title='Store 
 
 *b)*
 ```{r, fig.width=10}
-# note: try to reorder category name by volume in graph?
 dat %>% group_by(`Category Name`)  %>% summarize(Volume = sum(`Volume Sold (Gallons)`)) %>% ggplot(aes(x=`Category Name`, y=Volume)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=-90)) + labs(title="Liquor Category Breakdown by Volume Sold in Gallons", y = 'Volume Sold (Gallons)')
 ```
 
